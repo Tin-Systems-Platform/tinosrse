@@ -1,15 +1,32 @@
 ENTRY(_start)
 
-SECTIONS {
+SECTIONS
+{
     . = 1M;
 
-    .text : {
-        KEEP(*(.multiboot_header)) 
-        *(.text.prologue)
-        *(.text .text.*)
+    .multiboot ALIGN(8) :
+    {
+        KEEP(*(.multiboot))
     }
 
-    .rodata : { *(.rodata .rodata.*) }
-    .data   : { *(.data .data.*) }
-    .bss    : { *(.bss .bss.*) }
+    .text :
+    {
+        *(.text*)
+    }
+
+    .rodata :
+    {
+        *(.rodata*)
+    }
+
+    .data :
+    {
+        *(.data*)
+    }
+
+    .bss :
+    {
+        *(COMMON)
+        *(.bss*)
+    }
 }

@@ -10,7 +10,7 @@ fn panic(_info: &PanicInfo) -> ! {
 }
 
 #[unsafe(no_mangle)] // don't mangle the name of this function
-pub extern "C" fn _start(multiboot_info_ptr: usize, magic: usize) -> ! {
+pub extern "C" fn kernel_main(multiboot_info_ptr: usize, magic: usize) -> ! {
 
     if magic != 0x36D76289 {
         loop {}

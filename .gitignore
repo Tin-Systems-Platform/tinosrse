@@ -13,6 +13,6 @@ target/
 #/target
 
 
-iso_files/
+iso_root/
 
-bin/
+*.iso

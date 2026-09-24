@@ -4,17 +4,22 @@ global _start
 extern kernel_main
 
 
-section .multiboot_header
+section .multiboot
 align 8
-multiboot_header_start:
-    dd 0xE85250D6               
-    dd 0                         
-    dd multiboot_header_end - multiboot_header_start 
-    dd 0x100000000 - (0xE85250D6 + 0 + (multiboot_header_end - multiboot_header_start))
 
-    dw 0                         
-    dw 0                        
-    dd 8                         
+multiboot_header:
+    dd 0xE85250D6
+    dd 0
+    dd multiboot_header_end - multiboot_header
+
+    ; checksum
+    dd -(0xE85250D6 + 0 + (multiboot_header_end - multiboot_header))
+
+    ; required end tag
+    dw 0
+    dw 0
+    dd 8
+
 multiboot_header_end:
 
 
