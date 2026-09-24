@@ -2,6 +2,7 @@
 #![no_main] // disable all Rust-level entry points
 mod kernel;
 use core::panic::PanicInfo;
+use crate::kernel::lib::consoleio;
 
 /// This function is called on panic.
 #[panic_handler]
@@ -25,5 +26,6 @@ pub extern "C" fn kernel_main(multiboot_info_ptr: usize, magic: usize) -> ! {
     // this function is the entry point, since the linker looks for a function
     // named `_start` by default
     kernel::lib::init::sys_init();
+    consoleio::print(b"Test output");
     loop {}
 }
