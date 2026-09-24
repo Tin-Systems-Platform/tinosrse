@@ -10,7 +10,18 @@ fn panic(_info: &PanicInfo) -> ! {
 }
 
 #[unsafe(no_mangle)] // don't mangle the name of this function
-pub extern "C" fn _start() -> ! {
+pub extern "C" fn _start(multiboot_info_ptr: usize, magic: usize) -> ! {
+
+    if magic != 0x36D76289 {
+        loop {}
+    }
+
+    let boot_info_ptr = multiboot_info_ptr as *const _;
+    let boot_info = unsafe { 
+        multiboot2::BootInformation::load(boot_info_ptr)
+            .expect("Multiboot2-info parsing failed!") 
+    };
+
     // this function is the entry point, since the linker looks for a function
     // named `_start` by default
     kernel::lib::init::sys_init();

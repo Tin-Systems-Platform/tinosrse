@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+multiboot2 = { version="0.28.0", default-features = false }
+
 
 
 [profile.dev]
@@ -11,3 +13,6 @@ panic = "abort"
 
 [profile.release]
 panic = "abort"
+
+[build-dependencies]
+nasm-rs = "0.3.2"
