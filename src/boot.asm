@@ -56,6 +56,18 @@ _start:
     ; Load page tables
     ; --------------------------------------------------------
 
+    ; Identity-map the first 2 MiB with a 2 MiB page.
+    mov eax, pdpt
+    or eax, 0x03                         ; present, writable
+    mov [pml4], eax
+
+    mov eax, pd
+    or eax, 0x03                         ; present, writable
+    mov [pdpt], eax
+
+    mov dword [pd], 0x00000083           ; present, writable, 2 MiB page
+    mov dword [pd + 4], 0
+
     mov eax, pml4
     mov cr3, eax
 
@@ -82,10 +94,10 @@ _start:
     ; Enable paging
     ; --------------------------------------------------------
 
-    ; mov eax, cr0
-    ;  or eax, (1 << 31)                      ; PG
+    mov eax, cr0
+    or eax, (1 << 31)                       ; PG
 
-    ; mov cr0, eax
+    mov cr0, eax
 
     ; --------------------------------------------------------
     ; Enter 64-bit code segment
