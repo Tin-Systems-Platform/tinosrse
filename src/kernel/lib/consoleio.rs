@@ -1,5 +1,6 @@
-const CHAR_WIDTH: u64 = 32;
-const CHAR_HEIGHT: u64 = 32;
+const CHAR_WIDTH: u64 = 15;
+const CHAR_HEIGHT: u64 = 23;
+const CHAR_SCALE: u64 = 3;
 
 static mut CURSOR_X: u64 = 0;
 static mut CURSOR_Y: u64 = 0;
@@ -24,13 +25,13 @@ pub fn print(msg: &[u8]) {
         unsafe {
             if byte == b'\n' {
                 CURSOR_X = 0;
-                CURSOR_Y += CHAR_HEIGHT / 2;
+                CURSOR_Y += CHAR_HEIGHT;
                 continue;
             }
 
             if CURSOR_X + CHAR_WIDTH > framebuffer.width {
                 CURSOR_X = 0;
-                CURSOR_Y += CHAR_HEIGHT / 2;
+                CURSOR_Y += CHAR_HEIGHT * 2;
             }
             if CURSOR_Y + CHAR_HEIGHT > framebuffer.height {
                 CURSOR_X = 0;
@@ -38,7 +39,7 @@ pub fn print(msg: &[u8]) {
             }
 
             draw_character(framebuffer, byte, foreground, background);
-            CURSOR_X += CHAR_WIDTH / 2;
+            CURSOR_X += CHAR_WIDTH * 2;
         }
     }
 }
@@ -72,15 +73,36 @@ unsafe fn draw_character(
     background: u32,
 ) {
     let glyph = glyph(character);
+
     for (row, bits) in glyph.iter().enumerate() {
-        for column in 0..5 {
-            let pixel = if bits & (1 << (4 - column)) != 0 {
-                foreground
-            } else {
-                background
-            };
-            unsafe {
-                write_pixel(framebuffer, CURSOR_X + column, CURSOR_Y + row as u64, pixel);
+        // Käydään fontin 7 riviä läpi
+        for sy in 0..CHAR_SCALE {
+            let pixel_y = CURSOR_Y + (row as u64 * CHAR_SCALE) + sy;
+            if pixel_y >= framebuffer.height { continue; }
+
+            // Käydään fontin 5 saraketta läpi
+            for column in 0..5 {
+                let is_foreground = (bits & (1 << (4 - column))) != 0;
+                let color_val = if is_foreground { foreground } else { background };
+
+                for sx in 0..CHAR_SCALE {
+                    let pixel_x = CURSOR_X + (column * CHAR_SCALE) + sx;
+                    if pixel_x >= framebuffer.width { continue; }
+
+                    // Nopea ja suora suorituskykyinen muistiosoitteen laskenta
+                    let offset = pixel_y * framebuffer.pitch + pixel_x * (framebuffer.bpp as u64 / 8);
+                    let target_address = framebuffer.address.add(offset as usize);
+
+                    // Kirjoitetaan suoraan 32-bittisenä arvona jos mahdollista, muuten tavuina
+                    if framebuffer.bpp == 32 {
+                        *(target_address as *mut u32) = color_val;
+                    } else {
+                        let bytes = color_val.to_le_bytes();
+                        for index in 0..(framebuffer.bpp as usize / 8) {
+                            target_address.add(index).write_volatile(bytes[index]);
+                        }
+                    }
+                }
             }
         }
     }
