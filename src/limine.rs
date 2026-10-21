@@ -271,3 +271,17 @@ pub fn hhdm_offset() -> Option<usize> {
         (!response.is_null()).then_some((*response).offset as usize)
     }
 }
+
+pub fn framebuffer() -> Option<&'static Framebuffer> {
+    unsafe {
+        let response = FRAMEBUFFER_REQUEST.response as *const FramebufferResponse;
+        if response.is_null() || (*response).framebuffer_count == 0 {
+            return None;
+        }
+        let framebuffers = (*response).framebuffers;
+        if framebuffers.is_null() || (*framebuffers).is_null() {
+            return None;
+        }
+        Some(&*(*framebuffers))
+    }
+}

@@ -24,4 +24,9 @@ xorriso -as mkisofs \
     --protective-msdos-label \
     -o "$iso_image" "$iso_root" >/dev/null
 
+if [ "${QEMU_DEBUG:-0}" = 1 ]; then
+    exec qemu-system-x86_64 -cdrom "$iso_image" -display "${QEMU_DISPLAY:-gtk}" \
+        -d int,cpu_reset -D "${QEMU_DEBUG_LOG:-/tmp/tinosrse-qemu.log}"
+fi
+
 exec qemu-system-x86_64 -cdrom "$iso_image" -display "${QEMU_DISPLAY:-gtk}"
