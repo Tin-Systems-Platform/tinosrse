@@ -1,6 +1,7 @@
 const CHAR_WIDTH: u64 = 15;
 const CHAR_HEIGHT: u64 = 23;
 const CHAR_SCALE: u64 = 3;
+const CHAR_ADVANCE: u64 = CHAR_WIDTH * 3 / 2;
 
 static mut CURSOR_X: u64 = 0;
 static mut CURSOR_Y: u64 = 0;
@@ -39,7 +40,7 @@ pub fn print(msg: &[u8]) {
             }
 
             draw_character(framebuffer, byte, foreground, background);
-            CURSOR_X += CHAR_WIDTH * 2;
+            CURSOR_X += CHAR_ADVANCE;
         }
     }
 }

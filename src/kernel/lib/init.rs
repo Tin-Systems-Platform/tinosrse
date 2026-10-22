@@ -1,5 +1,5 @@
 use crate::kernel::lib::consoleio;
 
 pub fn sys_init() {
-    consoleio::print(b"TEST OUTPUT\n");
+    consoleio::print(b"TinosRSE initialization complete.\n");
 }
